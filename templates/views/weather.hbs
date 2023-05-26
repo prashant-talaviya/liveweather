@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Weather</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css"
+        integrity="sha512-PgQMlq+nqFLV4ylk1gwUOgm6CtIIXkKwaIHp/PAIWHzig/lKZSEGKEysh0TCVbHJXCLN7WetD8TFecIky75ZfQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.slim.min.js"></script>
+
+    <!-- Popper JS -->
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+
+    <link rel="shortcut icon" href="img/logo.png" type="image/png">
+
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/main.js"></script>
+
+
+</head>
+
+<body>
+
+
+    {{>navbar}}
+
+    <!-- main-header -->
+    <div class="container-fluid main_header">
+        <div class="row">
+            <div class="col-md-10 col-12 mx-auto">
+                <div class="main_contant">
+                    <form class="temp_form">
+                        <input type="text" id="cityname" placeholder="Enter Your City Name" autocomplete="off">
+                        <input type="submit" id="submitBtn" value="Search">
+                    </form>
+                </div>
+
+                <div class="tempInformation">
+                    <div class="top_layer">
+                        <p id="day">Thursday</p>
+                        <p id="date">25 May</p>
+                    </div>
+
+                    <div class="main_layer">
+                        <p id="city_name">Get Output Here</p>
+                        <div class="middle_layer data_hide">
+                            <p id="temp"><span id="temp_real_val">0</span><sup>o</sup>C</p>
+                            <p id="temp_status"><i class="fa fa-cloud" aria-hidden="true"></i></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{>footer}}
+
+    <script>
+        const submitBtn = document.getElementById("submitBtn");
+        const cityname = document.getElementById("cityname");
+        const city_name = document.getElementById("city_name");
+        const temp_status = document.getElementById("temp_status");
+        const temp_real_val = document.getElementById("temp_real_val");
+
+        const dataHide=document.querySelector('.data_hide');
+
+        const getInfo = async(event) => {
+            event.preventDefault();
+            let cityVal=cityname.value;
+            if(cityVal===""){
+                city_name.innerText=`Please Enter City Name`;
+                dataHide.classList.add('data_hide');
+            }
+            else{
+                try{
+                    let url=`https://api.openweathermap.org/data/2.5/weather?q=${cityVal}&appid=e2f0645abcba1252c72a9ae78285c262`;
+                const response=await fetch(url);
+                const data=await response.json();
+                const arrData = [data];
+
+                city_name.innerText=`${arrData[0].name},${arrData[0].sys.country}`
+                temp_real_val.innerText=arrData[0].main.temp;
+                temp_status.innerText=arrData[0].weather[0].main;
+
+                const tempmood=arrData[0].weather[0].main;
+                //condition to check sunny or cloudy
+                if(tempmood==="Clear"){
+                    temp_status.innerHTML="<i class='fas fa-sun' style='color:#eccc68;'></i>";
+                }
+                else if(tempmood==="Clouds"){
+                    temp_status.innerHTML="<i class='fas fa-cloud' style='color:#f1f2f6;'></i>";
+                }
+                 if(tempmood==="Rain"){
+                    temp_status.innerHTML="<i class='fas fa-cloud-rain' style='color:#a4b0be;'></i>";
+                }
+                 else{
+                    temp_status.innerHTML="<i class='fas fa-cloud' style='color:#f1f2f6;'></i>";
+                }
+                dataHide.classList.remove('data_hide');
+                }
+                catch{
+                    city_name.innerText=`City Not Found`;
+                    dataHide.classList.add('data_hide');
+                }
+            }
+        }
+
+        submitBtn.addEventListener('click', getInfo);
+
+    </script>
+
+
+</body>
+
+</html>
